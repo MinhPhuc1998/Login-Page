@@ -67,7 +67,7 @@ if(isset($_POST['dangky']))
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<h2>Sign in/up Form</h2>
+<!-- <h2>Sign in/up Form</h2> -->
     <div class="container" id="container">
         <div class="form-container sign-up-container">
             <form action="" method="POST">

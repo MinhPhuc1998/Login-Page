@@ -2,6 +2,7 @@
 session_start();
 header('Content-Type: text/html; charset=UTF-8');
 include('connect.php');
+include ("PHPMailer-5.2.0/class.phpmailer.php");
 if (isset($_POST['reset-password'])) {
   $email = mysqli_real_escape_string($conn, $_POST['email']);
   // ensure that the user exists on our system
@@ -14,24 +15,50 @@ if (isset($_POST['reset-password'])) {
         echo '<script language="javascript">alert("Email này không tồn tại!"); window.location="reset-password.php";</script>';
         die ();
     }else{
-    	$_SESSION['email'] = $email;
-    	$token = bin2hex(random_bytes(50));
-    	$_SESSION['token'] = $token;
-    	$sql1 = "UPDATE user SET _token='$token' WHERE email='$email'";
-    	$results = mysqli_query($conn, $sql1);
+      $_SESSION['email'] = $email;
+      $token = bin2hex(random_bytes(10));
+      $_SESSION['token'] = $token;
+      $sql1 = "UPDATE user SET _token='$token' WHERE email='$email'";
+      $results = mysqli_query($conn, $sql1);
+      //send mail
+      $mail = new PHPMailer();
+      //$mail->setMail('smtp'); // smtp | mail (ham mail trong PHP), default: mail
+      $mail->IsSMTP();
+      $mail->Host = "smtp.gmail.com"; //
+      $mail->Port = 465;
+      $mail->SMTPAuth = true;
+      $mail->SMTPSecure = 'ssl'; // ssl hoac tls, neu su dung tls thi $mail->Port la: 587
+      $mail->Username = "minhphuc130298@gmail.com"; // tai khoan dang nhap de gui email
+      $mail->Password = "MP98*sheepbee";            // mat khau gui email
+
+      $mail->From = "minhphuc130298@gmail.com"; // email se duoc thay the email trong smtp
+      $mail->AddReplyTo("minhphuc130298@gmail.com");  // email cho phep nguoi dung reply lai
+      $mail->FromName = "phuc minh"; // ho ten nguoi gui email
+
+      $mail->WordWrap = 50;
+      $mail->IsHTML('text/html');     //text/html | text/plain, default:text/html
+
+      $mail->AltBody = "Send from ITNetCorp class_smtp_mail"; //Text Body
+
+      $mail->Body = "Hi there, click on this '<a href=\"http://localhost/F_PROJECT/f/new-password.php?email=" . $email . "?token=" . $token . "\">link</a>' to reset your password on our site";; //HTML Body
+      $mail->Subject = "Reset password";
+      $mail->AddAddress($email); // email nguoi nhan
+
+      $mail->Send();
+      $mail->ClearAddresses();
+
+    	
     	// Send email to user with the token in a link they can click on
-    	$to_email = $email;
+    	/*$to_email = $email;
 	    $subject = "Reset your password on my page";
 	    $msg = "Hi there, click on this <a href=\"new-password.php?token=" . $token . "\">link</a> to reset your password on our site";
 	    $msg = wordwrap($msg,70);
 	    $headers = "From: minhphuc130298@gmail.com";
-	    /*mail($to, $subject, $msg, $headers);
-	    header('location: reset-password.php?email=' . $email);*/
 	    if (mail($to_email, $subject, $msg, $headers)) {
     		echo "Email successfully sent to." .'$email';
-		} else {
+		  } else {
     		echo "Email sending failed...";
-		}
+		  }*/
 	  }
   /*if (empty($email)) {
     array_push($errors, "Your email is required");
